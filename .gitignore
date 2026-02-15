@@ -1,0 +1,23 @@
+*.log
+local_settings.py
+__pycache__/
+.env
+.venv
+env/
+venv/
+env.bak/
+venv.bak/
+*.sqlite3
+*.pyc
+.DS_Store
+
+# Static and media files
+staticfiles/
+media/
+
+# IDE configuration
+.idea/
+.vscode/
+
+# Test coverage
+.coverage
