@@ -1,8 +1,15 @@
 from datetime import date
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets, filters, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied
 from .models import Task, TaskComment
 from .serializers import TaskSerializer, TaskCommentSerializer
+from organizations.models import Membership as OrgMembership
+from teams.models import TeamMembership
 
 
 class TaskCommentViewSet(viewsets.ModelViewSet):
@@ -123,7 +130,7 @@ class TaskViewSet(viewsets.ModelViewSet):
         
         # 2. Team-assigned task
         elif instance.team:
-            is_org_admin = OrgMembership.objects.filter(
+            is_org_admin = Membership.objects.filter(
                 user=user, 
                 organization=instance.team.organization, 
                 role='admin'
@@ -138,7 +145,7 @@ class TaskViewSet(viewsets.ModelViewSet):
                 
         # 3. Org task not assigned to a team, only org admin can edit
         elif instance.organization:
-             is_org_admin = OrgMembership.objects.filter(
+             is_org_admin = Membership.objects.filter(
                  user=user, 
                  organization=instance.organization, 
                  role='admin'

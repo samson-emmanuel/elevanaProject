@@ -23,6 +23,12 @@ from rest_framework_simplejwt.views import (
 from django.http import JsonResponse
 
 
+def root_view(request):
+    return JsonResponse({
+        "status": "OK",
+        "message": "Elevanalog API is running"
+    })
+
 
 urlpatterns = [
     path('', root_view),
