@@ -46,3 +46,5 @@ uvicorn
 gunicorn
 dj-database-url
 whitenoise
+drf-spectacular
+drf-spectacular-sidecar

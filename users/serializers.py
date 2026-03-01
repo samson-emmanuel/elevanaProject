@@ -39,6 +39,9 @@ class PasswordResetConfirmSerializer(serializers.Serializer):
             return user
         raise serializers.ValidationError('Invalid token or user ID.')
 
+class PasswordResetRequestSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -57,11 +60,14 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'first_name', 'last_name',
+        fields = ['id', 'username', 'email', 'password', 'first_name', 'last_name',
                   'phone_number', 'address', 'avatar', 'avatar_40', 
                   'avatar_100', 'avatar_400', 'has_premium_access', 'is_on_trial', 
                   'trial_ends_at', 'date_joined', 'memberships', 'subscription_ends_at']
-        extra_kwargs = {'password': {'write_only': True}}
+        extra_kwargs = {
+            'password': {'write_only': True},
+            'username': {'required': True}
+        }
 
     def get_subscription_ends_at(self, obj):
         if hasattr(obj, 'subscription') and obj.subscription:

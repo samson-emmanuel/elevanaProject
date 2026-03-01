@@ -14,16 +14,21 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from django.contrib.auth import get_user_model
-from .serializers import UserSerializer, UserUpdateSerializer, PasswordResetConfirmSerializer
+from .serializers import UserSerializer, UserUpdateSerializer, PasswordResetConfirmSerializer, PasswordResetRequestSerializer
 
 User = get_user_model()
 
-class UserViewSet(mixins.RetrieveModelMixin,
+class UserViewSet(mixins.CreateModelMixin,
+                  mixins.RetrieveModelMixin,
                   mixins.UpdateModelMixin,
                   viewsets.GenericViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
+
+    def get_permissions(self):
+        if self.action == 'create':
+            return [AllowAny()]
+        return [IsAuthenticated()]
 
     def get_serializer_class(self):
         if self.action in ['update', 'partial_update']:
@@ -69,9 +74,15 @@ class UserViewSet(mixins.RetrieveModelMixin,
 
 class PasswordResetRequestView(generics.GenericAPIView):
     permission_classes = [AllowAny]
+    serializer_class = PasswordResetRequestSerializer
     
     def post(self, request, *args, **kwargs):
-        form = PasswordResetForm(request.data)
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        email = serializer.validated_data['email']
+        
+        # We still use PasswordResetForm to actually send the email as it has the logic
+        form = PasswordResetForm({'email': email})
         if form.is_valid():
             email = form.cleaned_data['email']
             form.save(
